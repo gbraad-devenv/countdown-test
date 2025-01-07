@@ -28,11 +28,9 @@ jobs:
         run: |
           sleep 3
           podman exec countdown systemctl start countdown.timer
-          podman exec countdown systemctl status countdown.timer
-          until ! podman exec countdown systemctl is-active countdown.timer
+          until ! podman exec countdown systemctl is-active --quiet countdown.timer
           do
             sleep 10
-            podman exec countdown systemctl show countdown.timer --property=LastTriggerUSec
           done
           podman exec countdown systemctl poweroff
           echo "Finished by reaching countdown"
