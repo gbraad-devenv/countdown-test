@@ -1,0 +1,6 @@
+[Unit]
+Description=Countdown Timer Service
+
+[Service]
+Type=oneshot
+ExecStart=wall "The countdown timer has finished!"

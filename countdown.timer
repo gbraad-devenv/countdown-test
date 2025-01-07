@@ -1,0 +1,9 @@
+[Unit]
+Description=Countdown Timer (Once Only)
+
+[Timer]
+OnActiveSec=1m
+RemainAfterElapse=no
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,38 @@
+name: build and test countdown
+run-name: build and test countdown
+on:
+  schedule:
+    - cron: "0 0 1 * *"
+  workflow_dispatch:
+jobs:
+  build:
+    permissions:
+      contents: read
+      packages: write
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-24.04
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Run podman build
+        run: podman build -t countdown-test -f Containerfile .
+
+      - name: Run system container with `podman`
+        run: |
+          podman run -d --name countdown --systemd=always countdown-test
+      - name: Hang around until countdown
+        run: |
+          sleep 3
+          podman exec countdown systemctl start countdown.timer
+          podman exec countdown systemctl status countdown.timer
+          until ! podman exec countdown systemctl is-active countdown.timer
+          do
+            sleep 10
+            podman exec countdown systemctl show countdown.timer --property=LastTriggerUSec
+          done
+          podman exec countdown systemctl poweroff
+          echo "Finished by reaching countdown"
