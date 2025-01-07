@@ -23,14 +23,26 @@ jobs:
 
       - name: Run system container with `podman`
         run: |
-          podman run -d --name countdown --systemd=always countdown-test
+          podman run -d --name countdown --systemd=always --cap-add=NET_RAW --cap-add=NET_ADMIN --device=/dev/net/tun countdown-test
+      - name: Tailscale setup (root)
+        run: |
+          until podman exec countdown tailscale up --auth-key ${TAILSCALE_AUTHKEY} --hostname code-${HOSTNAME}
+          do
+              sleep 0.1
+          done
+          podman exec countdown tailscale set --ssh
+        env:
+          TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY}}
       - name: Hang around until countdown
         run: |
-          sleep 3
+          podman exec -d countdown code serve-web --without-connection-token
+          sleep 15
+          podman exec countdown tailscale serve --bg 8000
           podman exec countdown systemctl start countdown.timer
           until ! podman exec countdown systemctl is-active --quiet countdown.timer
           do
             sleep 10
           done
+          sleep 60
           podman exec countdown systemctl poweroff
           echo "Finished by reaching countdown"

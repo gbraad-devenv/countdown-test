@@ -2,7 +2,7 @@
 Description=Countdown Timer (Once Only)
 
 [Timer]
-OnActiveSec=1m
+OnActiveSec=30m
 RemainAfterElapse=no
 
 [Install]
