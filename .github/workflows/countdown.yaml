@@ -16,6 +16,8 @@ jobs:
         os:
           - ubuntu-24.04
     steps:
+      - name: Remove unwanted stuff
+        uses: gbraad-devenv/remove-unwanted@v1
       - name: Check out repository code
         uses: actions/checkout@v4
       - name: Run podman build
